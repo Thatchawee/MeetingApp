@@ -1,0 +1,91 @@
+/* src/MeetingCalendar.css */
+
+.calendar-container {
+  /* ลบ inline style พื้นหลังเก่าทิ้งแล้วมาใช้สีจาก Theme แทน */
+  background-color: var(--card-bg);
+  padding: 24px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
+}
+
+.calendar-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 14px;
+  margin-top: 24px;
+}
+
+/* สไตล์ปุ่มเวลา (สถานะปกติ) */
+.time-slot {
+  padding: 16px;
+  border-radius: 10px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 1px solid var(--border);
+  background-color: rgba(15, 23, 42, 0.5); /* สีพื้นหลังปุ่มแบบเข้มโปร่งแสง */
+  color: var(--text-main); /* ตัวหนังสือสีขาว */
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+/* เอฟเฟกต์ตอนเอาเมาส์ชี้ */
+.time-slot:hover:not(.past) {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  border-color: var(--primary);
+  background-color: rgba(99, 102, 241, 0.15);
+}
+
+/* เวลาที่ตัวเรากดเลือก (สีฟ้า/ม่วง) */
+.time-slot.selected {
+  background-color: var(--primary);
+  color: white;
+  border-color: var(--primary-hover);
+  box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
+}
+
+/* เวลาที่ทุกคนว่างตรงกัน (สีเขียว) */
+.time-slot.intersection {
+  background-color: var(--success);
+  color: white;
+  border-color: #047857;
+  font-weight: 700;
+  transform: scale(1.03);
+  box-shadow: 0 6px 15px rgba(16, 185, 129, 0.3);
+}
+
+/* เวลาในอดีต (สีเทาเข้ม กดไม่ได้) */
+.time-slot.past {
+  background-color: rgba(15, 23, 42, 0.2);
+  color: var(--text-muted);
+  cursor: not-allowed;
+  border: 1px dashed var(--border);
+}
+
+/* กล่องคำอธิบายด้านล่าง (Legend) */
+.legend-container {
+  margin-top: 35px;
+  padding: 20px 24px;
+  background-color: rgba(15, 23, 42, 0.4); /* เปลี่ยนจากสีขาวเป็นสีเข้ม */
+  border-radius: 12px;
+  border: 1px solid var(--border);
+}
+
+.legend-container h3 {
+  margin-top: 0;
+  color: var(--text-main);
+  font-size: 1.1rem;
+}
+
+.legend-item {
+  margin: 10px 0;
+  font-size: 0.95rem;
+  color: var(--text-main); /* ทำให้ตัวหนังสืออธิบายเป็นสีสว่างอ่านง่าย */
+}
+
+/* สีของคำอธิบายให้สว่างขึ้นเพื่อให้เข้ากับ Dark Mode */
+.text-blue { color: #818cf8; font-weight: 700; } 
+.text-green { color: #34d399; font-weight: 700; } 
+.text-grey { color: var(--text-muted); font-weight: 700; }
