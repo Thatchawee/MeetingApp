@@ -37,7 +37,7 @@ export default function MeetingCalendar({ session, meeting, onBack }) {
     return slotTime < currentTime; 
   };
 
-  const handleFinalize = async (slotStr, formattedHour) => {
+  const handleFinalize = async (slotStr) => {
     await supabase.from('meetings').update({ finalized_time: slotStr }).eq('id', meeting.id);
     alert('Meeting time has been locked successfully!');
     onBack(); 
@@ -56,7 +56,7 @@ export default function MeetingCalendar({ session, meeting, onBack }) {
         );
         
         if (confirmLock) {
-          handleFinalize(slotStr, formattedHour);
+          handleFinalize(slotStr);
           return;
         }
       }

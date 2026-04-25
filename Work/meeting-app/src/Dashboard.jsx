@@ -10,6 +10,7 @@ export default function Dashboard({ session }) {
   const [myMeetings, setMyMeetings] = useState([]);
   const [myInvites, setMyInvites] = useState([]); 
   const [loading, setLoading] = useState(false);
+  const [createMessage, setCreateMessage] = useState('');
   
   const [selectedMeeting, setSelectedMeeting] = useState(null); 
   const [activeCalendarMeeting, setActiveCalendarMeeting] = useState(null); 
@@ -54,22 +55,38 @@ export default function Dashboard({ session }) {
   // 🔴 อัปเกรดระบบดักจับ Error ป้องกันปุ่มค้าง
   const handleCreateMeeting = async (e) => {
     e.preventDefault();
-    if (!meetingTitle.trim() || !meetingDate) return;
+    setCreateMessage('');
+
+    const title = meetingTitle.trim();
+    if (!title || !meetingDate) {
+      setCreateMessage('Please enter a meeting title and date.');
+      return;
+    }
+
+    if (!session?.user?.id) {
+      setCreateMessage('Cannot create meeting because the current user session is missing.');
+      return;
+    }
     
     setLoading(true);
     
     try {
-      const { error } = await supabase.from('meetings').insert([
-        { title: meetingTitle, owner_id: session.user.id, meeting_date: meetingDate }
-      ]);
+      const { data: newMeeting, error } = await supabase
+        .from('meetings')
+        .insert([{ title, owner_id: session.user.id, meeting_date: meetingDate }])
+        .select()
+        .single();
       
       if (error) throw error; // ถ้า Database ฟ้อง Error ให้กระโดดไปที่ catch
       
       setMeetingTitle(''); 
       setMeetingDate(todayString); 
+      setCreateMessage('Meeting created successfully.');
+      if (newMeeting) setMyMeetings(prev => [newMeeting, ...prev]);
       fetchMyMeetings(); // รีเฟรชรายการ Meeting
       
     } catch (error) {
+      setCreateMessage("Cannot create meeting: " + error.message);
       alert("❌ ไม่สามารถสร้าง Meeting ได้: " + error.message);
       console.error("Create Meeting Error:", error);
     } finally {
@@ -166,11 +183,16 @@ export default function Dashboard({ session }) {
 
       <div className="card">
         <h2 className="card-header">➕ Create New Meeting</h2>
-        <form onSubmit={handleCreateMeeting} style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+        <form onSubmit={handleCreateMeeting} noValidate style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
           <input type="text" placeholder="e.g., Weekly Team Sync" value={meetingTitle} onChange={(e) => setMeetingTitle(e.target.value)} className="input-field" style={{ flex: 2, minWidth: '200px' }} required />
           <input type="date" value={meetingDate} onChange={(e) => setMeetingDate(e.target.value)} className="input-field" style={{ flex: 1, minWidth: '150px' }} required />
           <button type="submit" disabled={loading} className="btn btn-primary" style={{ whiteSpace: 'nowrap' }}>{loading ? 'Creating...' : 'Create Meeting'}</button>
         </form>
+        {createMessage && (
+          <p style={{ margin: '12px 0 0', color: createMessage.includes('success') ? 'var(--success)' : 'var(--danger)', fontWeight: 600 }}>
+            {createMessage}
+          </p>
+        )}
       </div>
 
       <div className="card">
