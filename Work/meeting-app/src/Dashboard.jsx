@@ -53,8 +53,7 @@ export default function Dashboard({ session }) {
   }, [session.user.id]);
 
   // 🔴 อัปเกรดระบบดักจับ Error ป้องกันปุ่มค้าง
-  const handleCreateMeeting = async (e) => {
-    e.preventDefault();
+  const createMeeting = async () => {
     setCreateMessage('');
 
     const title = meetingTitle.trim();
@@ -69,6 +68,7 @@ export default function Dashboard({ session }) {
     }
     
     setLoading(true);
+    setCreateMessage('Starting create request...');
     
     try {
       const { data: newMeeting, error } = await supabase
@@ -92,6 +92,11 @@ export default function Dashboard({ session }) {
     } finally {
       setLoading(false); // หยุดหมุน Loading เสมอไม่ว่าจะสำเร็จหรือพัง
     }
+  };
+
+  const handleCreateMeetingSubmit = (e) => {
+    e.preventDefault();
+    void createMeeting();
   };
 
   const handleDeleteMeeting = async (meetingId) => {
@@ -183,10 +188,10 @@ export default function Dashboard({ session }) {
 
       <div className="card">
         <h2 className="card-header">➕ Create New Meeting</h2>
-        <form onSubmit={handleCreateMeeting} noValidate style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+        <form onSubmit={handleCreateMeetingSubmit} noValidate style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
           <input type="text" placeholder="e.g., Weekly Team Sync" value={meetingTitle} onChange={(e) => setMeetingTitle(e.target.value)} className="input-field" style={{ flex: 2, minWidth: '200px' }} required />
           <input type="date" value={meetingDate} onChange={(e) => setMeetingDate(e.target.value)} className="input-field" style={{ flex: 1, minWidth: '150px' }} required />
-          <button type="submit" disabled={loading} className="btn btn-primary" style={{ whiteSpace: 'nowrap' }}>{loading ? 'Creating...' : 'Create Meeting'}</button>
+          <button type="button" onClick={() => void createMeeting()} disabled={loading} className="btn btn-primary" style={{ whiteSpace: 'nowrap' }}>{loading ? 'Creating...' : 'Create Meeting'}</button>
         </form>
         {createMessage && (
           <p style={{ margin: '12px 0 0', color: createMessage.includes('success') ? 'var(--success)' : 'var(--danger)', fontWeight: 600 }}>
